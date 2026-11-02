@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>飞书 CodeM 反馈汇总 · PPT</title>
+<style>
+  :root{
+    --bg0:#f0f7ff;
+    --bg1:#e3eefb;
+    --panel:#ffffff;
+    --panel2:#e8f2fc;
+    --line:#cddef2;
+    --txt:#1d2c4c;
+    --mut:#5b6c88;
+    --cy:#1a8bff;
+    --ma:#5b7bff;
+    --gr:#22a06b;
+    --rd:#dd4b4b;
+    --am:#d07a1e;
+    --bl:#4a74e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,150,255,.16), transparent 60%),
+      radial-gradient(900px 600px at 0% 110%, rgba(110,140,255,.14), transparent 60%),
+      linear-gradient(160deg,var(--bg0),var(--bg1));
+    color:var(--txt);
+    overflow:hidden;
+    position:relative;
+  }
+  #progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cy),var(--ma),var(--gr));transition:width .5s ease;z-index:50;}
+  #stage{width:100vw;height:100vh;position:relative;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:5vh 6vw;opacity:0;visibility:hidden;transition:opacity .55s ease,transform .55s ease;}
+  .slide.active{opacity:1;visibility:visible;}
+  #stage.sr .slide.active{animation:slideR .55s ease;}
+  #stage.sl .slide.active{animation:slideL .55s ease;}
+  @keyframes slideR{from{opacity:0;transform:translateX(70px) scale(.99)}to{opacity:1;transform:none}}
+  @keyframes slideL{from{opacity:0;transform:translateX(-70px) scale(.99)}to{opacity:1;transform:none}}
+  .inner{width:min(1180px,92vw);max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+
+  /* header */
+  .htop{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap;}
+  .kicker{font-size:12px;letter-spacing:3px;color:var(--cy);text-transform:uppercase;font-weight:700;}
+  .mtitle{font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:.5px;
+    background:linear-gradient(90deg,#1b3a78,var(--cy));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hsub{color:var(--mut);font-size:14px;margin-bottom:20px;}
+  .tag{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+    padding:3px 10px;border-radius:999px;font-size:12px;color:var(--mut);margin-left:auto;}
+
+  .grid{display:grid;gap:14px;flex:1;min-height:0;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;backdrop-filter:blur(4px);}
+  .card h3{font-size:14px;color:var(--mut);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .card h3 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  /* page1 */
+  .ov-grid{grid-template-columns:1fr 1.6fr;grid-template-rows:auto 1fr;gap:14px;padding-top:6px;}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center;}
+  .kpi .nv{font-size:clamp(26px,3vw,36px);font-weight:800;}
+  .kpi .lb{font-size:12px;color:var(--mut);margin-top:2px;}
+  .kpi.b .nv{color:var(--cy)} .kpi.g .nv{color:var(--gr)} .kpi.r .nv{color:var(--rd)}
+  .bars{margin-top:6px;display:flex;flex-direction:column;gap:12px;}
+  .bar{display:flex;align-items:center;gap:10px;}
+  .bar .nm{width:86px;font-size:13px;color:var(--mut);text-align:right;flex:none;}
+  .bar .tr{flex:1;height:9px;background:rgba(150,180,215,.28);border-radius:6px;overflow:hidden;}
+  .bar .fl{height:100%;border-radius:6px;width:0;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+  .bar .vl{width:30px;font-size:12px;color:var(--txt);font-weight:700;flex:none;}
+
+  /* source list */
+  .src{display:flex;flex-wrap:wrap;gap:8px;}
+  .src .chip{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;}
+  .src .chip b{color:var(--cy);margin-left:4px;}
+
+  /* board pages */
+  .b-list{display:flex;flex-direction:column;gap:12px;overflow:auto;padding-right:4px;}
+  .bp{display:flex;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;align-items:flex-start;transition:border-color .3s,background .3s;}
+  .bp:hover{border-color:var(--cy);background:var(--panel2);}
+  .rk{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+    background:linear-gradient(135deg,var(--cy),var(--bl));color:#06121f;}
+  .rk.alt{background:linear-gradient(135deg,var(--ma),var(--cy));color:#1a0527;}
+  .bk-m{flex:1;min-width:0;}
+  .bk-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+  .q{font-size:16px;font-weight:700;line-height:1.4;}
+  .co{font-size:11px;color:#1564c4;background:rgba(26,139,255,.10);border:1px solid rgba(26,139,255,.35);padding:2px 8px;border-radius:999px;margin-left:auto;white-space:nowrap;}
+  .ans{font-size:13px;color:var(--mut);line-height:1.55;margin-top:4px;padding-left:12px;border-left:2px solid var(--line);}
+  .csrc{font-size:11px;color:var(--mut);margin-top:3px;}
+  .img-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#1564c4;background:rgba(26,139,255,.10);border:1px solid rgba(26,139,255,.38);border-radius:999px;padding:3px 11px;cursor:pointer;margin-top:6px;user-select:none;width:max-content;}
+  .img-toggle::before{content:"▼";font-size:10px;transition:transform .3s}
+  .img-toggle.on::before{transform:rotate(180deg)}
+  .img-toggle:hover{background:rgba(26,139,255,.18)}
+  .shot-wrap{max-height:0;overflow:hidden;transition:max-height .45s ease;}
+  .shot-wrap.open{max-height:460px}
+  .shot-wrap .shot{display:block;max-width:100%;max-height:360px;margin-top:8px;border:1px solid var(--line);border-radius:8px;}
+  .pills{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:3px 6px;margin-left:auto;}
+  .pills .p{font-size:11px;color:#1564c4;background:rgba(26,139,255,.10);border:1px solid rgba(26,139,255,.35);padding:2px 8px;border-radius:999px;white-space:nowrap;}
+  .doc-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#1a6bff;margin-top:6px;text-decoration:none;border:1px dashed rgba(26,139,255,.45);background:rgba(26,139,255,.08);padding:6px 10px;border-radius:8px;}
+  .doc-link:hover{background:rgba(26,139,255,.16);text-decoration:underline}
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px 20px;text-align:center;color:var(--mut);border:1px dashed var(--line);border-radius:14px;background:var(--panel);}
+  .empty .ic{font-size:34px;opacity:.5}
+
+  .two-pb{grid-template-columns:1fr 1fr;gap:16px;padding-top:4px;}
+  .two-pb .col{display:flex;flex-direction:column;gap:12px;min-height:0;}
+  .col h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+
+  /* nav */
+  .nav{position:fixed;top:0;bottom:0;width:7vw;min-width:54px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;background:transparent;border:0;color:var(--mut);font-size:30px;transition:color .25s,background .25s;}
+  .nav:hover{color:#1564c4;background:linear-gradient(90deg,rgba(26,139,255,.12),transparent);}
+  .nav.r{right:0;}
+  .nav.l{left:0;background:linear-gradient(270deg,rgba(26,139,255,.12),transparent);}
+  #pager{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:var(--mut);font-size:13px;letter-spacing:1px;z-index:30;
+    background:var(--panel2);border:1px solid var(--line);padding:4px 14px;border-radius:999px;backdrop-filter:blur(4px);}
+  #pager b{color:var(--txt)}
+  #dots{position:fixed;bottom:20px;right:22px;display:flex;gap:8px;z-index:30;}
+  #dots i{width:8px;height:8px;border-radius:50%;background:rgba(140,165,198,.6);cursor:pointer;transition:.3s;}
+  #dots i.on{width:22px;border-radius:4px;background:linear-gradient(90deg,var(--cy),var(--ma));}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(140,165,198,.55);border-radius:3px}
+  .foot-note{color:var(--mut);font-size:11px;margin-top:12px;text-align:center}
+  /* 周期筛选器 */
+  .pfixed{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:4px 6px;backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(30,80,160,.10);margin-left:auto;flex:none;}
+  .pfixed .plabel{font-size:11px;color:var(--mut);padding:0 4px;letter-spacing:1px;}
+  .pfixed button{border:1px solid transparent;background:transparent;color:var(--mut);font-size:12px;padding:4px 12px;border-radius:999px;cursor:pointer;transition:.25s;font-family:inherit;}
+  .pfixed button:hover{color:var(--cy);}
+  .pfixed button.on{background:linear-gradient(90deg,var(--cy),var(--ma));color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(26,139,255,.35);}
+  .pfixed .pnew{font-size:9px;background:#ff6b35;color:#fff;border-radius:4px;padding:1px 4px;margin-left:5px;vertical-align:1px;}
+  .pfixed.pmini{padding:3px 5px;gap:4px;box-shadow:none;margin-left:0;}
+  .pfixed.pmini button{font-size:11px;padding:3px 10px;}
+  .ttrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  @media(max-width:820px){
+    .ov-grid{grid-template-columns:1fr} .two-pb{grid-template-columns:1fr}
+    .nav{width:48px;min-width:40px} .slide{padding:2vh 4vw 10vh;justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .co{margin-left:0}
+    #kpis{flex-wrap:wrap;gap:8px}
+    #kpis .kpi{flex:1 1 30%;padding:10px 8px}
+    .pfixed .plabel{display:none}
+    .pfixed button{padding:4px 8px;font-size:11px}
+    .inner{width:94vw;max-height:none;overflow:visible;margin:auto 0}
+    .bar .vl{font-size:13px}
+    .shot-wrap.open{max-height:840px}
+    body{-webkit-overflow-scrolling:touch}
+  }
+  @media(max-width:480px){
+    #kpis .kpi{flex:1 1 45%}
+    .pfixed.pmini button{font-size:10px;padding:2px 6px}
+    .kpi .nv{font-size:20px}
+    .kpi .lb{font-size:10px}
+  }
+  #stage{touch-action:pan-y;}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div id="stage">
+  <!-- PAGE 1 总览 -->
+  <section class="slide active" data-i="0">
+    <div class="inner">
+      <div class="htop">
+        <div>
+          <div class="kicker">CodeM · VOC Feedback</div>
+          <h1 class="mtitle">飞书 CodeM 反馈汇总</h1>
+          <div class="hsub">反馈来源：飞书群反馈 · 文档《飞书CodeM VOC 反馈汇总》</div>
+        </div>
+        <div class="pfixed" id="pfixed"><span class="plabel">⏱ 时间周期</span></div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid ov-grid">
+        <div class="card">
+          <h3><span class="dot" style="background:var(--cy)"></span>五类反馈分布（条）</h3>
+          <div class="bars" id="catBars"></div>
+        </div>
+        <div class="card">
+          <h3><span class="dot" style="background:var(--gr)"></span>反馈来源 · 高频出现方</h3>
+          <div class="src" id="srcChips"></div>
+          <div class="foot-note">统计来自各条反馈原声中出现的公司 / 渠道标记</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE 2 常见咨询 -->
+  <section class="slide" data-i="1">
+    <div class="inner">
+      <div class="htop"><div>
+        <div class="kicker">TOP 高频问题</div>
+        <div class="ttrow"><h1 class="mtitle">常见咨询</h1><span class="pfixed pmini" data-pf></span></div>
+        <div class="hsub">咨询最多、反复被问到的产品 / 使用问题</div>
+      </div><span class="tag" id="consultTag"></span></div>
+      <div class="b-list" id="consultList"></div>
+    </div>
+  </section>
+
+  <!-- PAGE 3 bug 统计 -->
+  <section class="slide" data-i="2">
+    <div class="inner">
+      <div class="htop"><div>
+        <div class="kicker">在使用中遇到</div>
+        <div class="ttrow"><h1 class="mtitle">Bug 统计</h1><span class="pfixed pmini" data-pf></span></div>
+        <div class="hsub">用户反映的产品缺陷 / 异常</div>
+      </div><span class="tag" id="bugTag"></span></div>
+      <div class="b-list" id="bugList"></div>
+    </div>
+  </section>
+
+  <!-- PAGE 4 需求建议 -->
+  <section class="slide" data-i="3">
+    <div class="inner">
+      <div class="htop"><div>
+        <div class="kicker">希望 CodeM 更好</div>
+        <div class="ttrow"><h1 class="mtitle">需求建议</h1><span class="pfixed pmini" data-pf></span></div>
+        <div class="hsub">对产品功能、界面、交互的改进诉求</div>
+      </div><span class="tag" id="reqTag"></span></div>
+      <div class="b-list" id="reqList"></div>
+    </div>
+  </section>
+
+  <!-- PAGE 5 正向 & 负向 -->
+  <section class="slide" data-i="4">
+    <div class="inner">
+      <div class="htop"><div>
+        <div class="kicker">声音两极</div>
+        <div class="ttrow"><h1 class="mtitle">正向反馈 &nbsp;/&nbsp; 负向反馈</h1><span class="pfixed pmini" data-pf></span></div>
+        <div class="hsub">用户正面认可与负面意见</div>
+      </div></div>
+      <div class="grid two-pb">
+        <div class="col">
+          <h2><span class="dot" style="background:var(--gr)"></span>正向反馈</h2>
+          <div class="b-list" id="posList"></div>
+        </div>
+        <div class="col">
+          <h2><span class="dot" style="background:var(--rd)"></span>负向反馈</h2>
+          <div class="empty">
+            <div class="ic">📭</div>
+            <div id="negEmptyTxt"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<button class="nav l" id="prev" aria-label="上一页">‹</button>
+<div id="dots"></div>
+<button class="nav r" id="next" aria-label="下一页">›</button>
+<div id="pager"><b id="curP">1</b> / <span id="totP">5</span></div>
+
+<script>
+/* ============================================================
+   数据来源：《飞书CodeM VOC 反馈汇总》
+   覆盖周期：8.17-8.23 / 8.24-9.6 / 9.7-9.21 / 9.22-10.10
+   均为文档原文 / 原声整理，未改动、未编造。
+   ============================================================ */
+var IMG={};
+var PERIODS = {
+
+  "10.12-10.23": {
+    isLatest: true,
+      cats: [["常见咨询",9],["Bug 统计",11],["需求建议",0],["正向反馈",0],["负向反馈",0]],
+    total: 20,
+    tconsult: 9, tbug: 11, treq: 0,
+    consult: [
+    {q:"CodeM 是否支持用应用身份执行 lark-cli，以 CodeM 的身份在群内 @ 其他智能体进行协作", ans:"目前暂不支持。", src:"四维图新集团 · 字节（2）"},
+    {q:"CodeM bot 如何删除新会话", ans:"目前只支持 new 创建新的会话；需要删除会话的话，可以直接解散群。", src:"惠州乐庭智联科技 · 字节（2）", img:"assets/v5_consult_02.jpg"},
+    {q:"CodeM 是否可以用 codex 和 claude code 当做执行 agent", ans:"暂不支持。", src:"智慧芽信息科技（1）"},
+    {q:"群聊加入的 CodeM 机器人，别人好像无法指挥干活，感觉是一对一的？有方式可以让群聊里别人也指挥我的机器人干活吗", ans:"目前还不支持，本月正在优化，后续会上新。", src:"社区（1）"},
+    {q:"CodeM cli 的 headless 模式如何指定空间，或者是默认哪个空间", ans:"headless 模式目前不支持在命令行指定空间，且默认处于无空间状态。", src:"北京米可世界科技（1）"},
+    {q:"飞书 bot 对话怎么让后台的共享设备运行", ans:"目前还不支持，后续有优化会上新。", src:"社区（1）"},
+    {q:"非沙箱模式下空间可以设置环境变量吗", ans:"不支持，目前只有沙箱模式支持设置环境变量。", src:"北京米可世界科技（1）"}
+  ],
+  bug: [
+    {q:"CodeM 莫名离线", ans:"研发侧还在排查中。临时解决方案：终端侧先执行 CodeM service start 命令，启动下服务。", src:"华通 · 美丽营养科技 · 字节（3）", img:"assets/v5_bug_01.png"},
+    {q:"CodeM 执行报错", ans:"内部已解决，用户侧 update 升级后恢复正常。", src:"海汉得信息技术 · 深圳市瞻宇软件技术（2）", img:"assets/v5_bug_02.png"},
+    {q:"AI 节点的配置选项进行了保存，但再次打开后配置丢了", ans:"已修复上线。", src:"石头科技 · 字节（2）", img:"assets/v5_bug_03.png"},
+    {q:"打开 CodeM 提示「运行组件需要检查」，异常报错", ans:"RD 还在排查中。", src:"广州市广百股份（1）", img:"assets/v5_bug_04.png"},
+    {q:"CodeM 对话无回应", ans:"用户企业内 IT 限制了 CodeM，所以没有反应。需要增加提示而不是无响应，优化方案已在跟进。", src:"智元创新（2）", img:"assets/v5_bug_05.png"},
+    {q:"新建会话，提示报错", ans:"还在排查中。", src:"联芸（1）", img:"assets/v5_bug_06.png"}
+  ],
+  req: [],
+  pos: [],
+  neg: [],
+img: {}
+  },
+    "9.21-10.11": {
+      cats: [["常见咨询",9],["Bug 统计",10],["需求建议",2],["正向反馈",1],["负向反馈",0]],
+      total: 22,
+      tconsult: 9, tbug: 10, treq: 2,
+      consult: [
+      {q:"什么时候可以支持 Idea 插件使用", ans:"目前内部没有官方插件，但是有内部可使用的非官方插件。", src:"ADAYO华阳多媒体 · 惠州乐庭智联科技（2）"},
+      {q:"codem 管理后台沙箱集群这样依赖飞书项目空间吗", ans:"目前强依赖的飞书项目空间。", src:"字节 · 社区（2）", img:"assets/v4_consult_02.png"},
+      {q:"现在 CodeM 支持的大模型有哪些", ans:"目前支持的模型有 glm5.2、deepseekv4pro 与豆包 seed 2.0 Pro，具体根据任务情况自动匹配最优模型。", src:"钧山医芯 · 鱼泡科技（2）"},
+      {q:"安装包改成可选择安装地址，现在默认装 C 盘", ans:"后续会调整优化下，调整后可选择安装路径。", src:"优静工作室 · 惠州乐庭智联（2）"},
+      {q:"Codem 客户端安装后显示没有绑定设备", ans:"用户只是安装了客户端，没有执行 codem 服务运行命令。客户端和飞书 Bot 不一样，绑定设备必须要执行命令，然后 codem login 登陆后会默认显示登录的设备。", src:"东风奕派（1）", img:"assets/v4_consult_05.png"},
+      {q:"模型是国产的还是国外的，如果是国内的后续会接入国外模型？", ans:"目前都是国内模型，是否会接入国外模型看后续规划。", src:"社区（1）"},
+      {q:"codem 后台搜索不到空间", ans:"codem 登陆的是内网账号，操作人是在外网下新建的空间，所以搜索不到，内网下新建空间后可以正常搜索关联了。", src:"字节（1）", img:"assets/v4_consult_07.jpg"}
+    ],
+    bug: [
+      {q:"codem 执行任务提示报错", ans:"实际是额度不足导致，后续会优化下文案。", src:"猛士汽车 · 阿维塔科技 · 商汤科技（3）", img:"assets/v4_bug_01.png"},
+      {q:"智能强度选择异常，下拉框弹不出来", ans:"预期 10.8 号修复上线。", src:"水滴公司 · 字节（2）", img:"assets/v4_bug_02.png"},
+      {q:"检查更新失败", ans:"历史版本已解决了，但是出现的用户没下载最新版本，下载最新版本后正常了。", src:"水滴公司 · 字节（2）", img:"assets/v4_bug_03.png"},
+      {q:"客户端提示 codem 登陆失效", ans:"已给用户提供临时解决方案，后续会解决上线。", src:"水滴公司（1）", img:"assets/v4_bug_04.png"},
+      {q:"CodeM 显示设备不在", ans:"已修复上线。", src:"社区（1）", img:"assets/v4_bug_05.png"},
+      {q:"codem 更新到最新版本后，重启节点仍提示「当前本地设备不支持最新 Workflow 能力，请升级本机飞书 CodeM 后重新运行」", ans:"先临时给用户切了沙箱集群解决，根因还需确认，已提 bug 单跟进。", src:"水滴公司（1）", img:"assets/v4_bug_06.png"}
+      ],
+      req: [
+      {q:"一个话题组里和 codem 会话还是需要 at 它，期望改成在话题组里对话就直接触发 codem 会话", ans:"已提优化单跟进。", src:"经纬达智能科技"},
+      {q:"希望群聊中机器人互相 @ 触发协作，完成多 Agent 编排执行", ans:"已提优化单跟进。", src:"共绩科技"}
+      ],
+    pos: [
+      {q:"试用 CodeM，同时横向对比 Trae、Trae Work、米粒等工具，认为和飞书原生集成最彻底、与业务方向对口、实测体验占优（但因一直没找到合适的预算窗口，规模化覆盖暂缓）", ans:"", src:"智己智驾"}
+    ],
+    neg: [],
+  img: {}
+    },
+    "9.7-9.20": {
+      cats: [["常见咨询",9],["Bug 统计",15],["需求建议",7],["正向反馈",0],["负向反馈",0]],
+      total: 31,
+      tconsult: 9, tbug: 15, treq: 7,
+      consult: [
+      {q:"怎么查看使用 codem 的费用消耗", ans:"目前普通用户还无法单独查询额度消耗，需企业管理员在后台查询。", src:"社区 · 宁德新能源（3）"},
+      {q:"Codem 做自动化任务，可以正常自动评论，但是提醒后的人员收不到提醒", ans:"此前缺少 im:message.send_as_user 应用，近期已上线。", src:"社区 · 猛士（2）"},
+      {q:"目前是否可以使用自定义大模型", ans:"还不支持自定义模型，目前是任务自行调度去选择最优模型。", src:"社区 · WebEye网眼（2）"},
+      {q:"企业后台看不到沙箱的使用额度", ans:"目前沙箱是需要单独加筛选项。", src:"奇书飞翔 · 字节（2）", img:"assets/v3_consult_04.png"},
+      {q:"DeepSeek 4.1 Flash 会对 CodeM 的能力有明显的提升吗", ans:"内部还在评估，如果能力有提升，会排期替换。", src:"社区（1）"}
+    ],
+    bug: [
+      {q:"cli 执行过程中，无法拖拽放大 powershell 窗口", ans:"用户侧 powershell 版本过低不支持全屏模式，引导升级 powershell 版本后可正常全屏执行任务。", src:"惠州乐庭智联科技 · 上汽集团（2）"},
+      {q:"新建会话时，历史会话就没掉了", ans:"热修发布上线。", src:"宁德新能源 · 延锋（2）"},
+      {q:"产物读取失败", ans:"已修复上线。", src:"惠州乐庭智联 · 宁德新能源（2）", img:"assets/v3_bug_03.png"},
+      {q:"升级报错", ans:"在新版本已修复，升级后恢复正常。", src:"字节 · 社区（2）", img:"assets/v3_bug_04.png"},
+      {q:"客户端执行异常报错", ans:"新版本已修复。", src:"社区 · 字节（2）", img:"assets/v3_bug_05.png"},
+      {q:"显示设备离线，但是 codem daemon 执行时会说已经有实例", ans:"已修复上线。", src:"社区 · 宁德新能源（2）"},
+      {q:"滚动下来一堆报错信息，任务切一下就没了", ans:"已修复上线。", src:"字节（2）"},
+      {q:"飞书项目调度 codem 报额度不足", ans:"飞书计费中台的问题，已解决。", src:"超聚变（1）"}
+      ],
+      req: [
+      {q:"codem 产出的文件，希望存在当前的会话中，或者直接产出在云文档中，而不是产出在每个任务里翻阅好多消息才找到", ans:"已提需求。", src:"社区（1）"},
+      {q:"codem 只想在公司内部 20 台设备使用，不能在指定设备之外使用", ans:"内部已有需求单在跟进，马上介入测试阶段。", src:"宏恒股份（1）"},
+      {q:"codem 会话标题是否可以同步到终端窗口/Tab 标题（OSC 0/2）", ans:"已提需跟进。", src:"华图（1）"},
+      {q:"希望支持对接禅道", ans:"预期 12 月进行开发。", src:"宁德新能源（1）"},
+      {q:"PC 客户端中添加的 MCP 无法查看和编辑，需要界面化管理", ans:"已有需求在跟进，待排期阶段。", src:"宁德新能源（1）"},
+      {q:"希望沙箱模式计划能支持上传附件", ans:"已提需求。", src:"极石汽车（1）"},
+      {q:"用本地设备感觉权限有点大，因为任何人都可以通过跟节点对话操作那台机器", ans:"已提需求单。", src:"极石汽车（1）"}
+      ],
+    pos: [],
+    neg: [],
+  img: {}
+    },
+  "8.24-9.6": {
+      cats: [["常见咨询",12],["Bug 统计",15],["需求建议",8],["正向反馈",0],["负向反馈",0]],
+    total: 35,
+    tconsult: 12, tbug: 15, treq: 8,
+    consult: [
+    {q:"安装了客户端，飞书Bot对话提示设备离线", ans:"用户只安装了客户端，但终端侧没有执行 Codem 安装命令。飞书 Bot 对话依赖后台进程，未执行安装命令查不到后台服务，导致提示离线。", src:"宁夏西鸽葡萄酒产业集团 · WebEye网眼 · 字节 · 社区（4）", img:"assets/v2_consult_01.jpg"},
+    {q:"飞书聊天机器人怎么加一些 rules", ans:"后台的 web 行为准则下可以加规则限制。", src:"智元 · 易买工品 · 字节（3）", img:"assets/v2_consult_02.png"},
+    {q:"权限经常需要二次确定，是否可以配置放行", ans:"可以配置默认放行：飞书 Bot 聊天框下方有「默认模式」与「全部放行」，选择全部放行即可。", src:"社区 · 字节（2）", img:"assets/v2_consult_03.png"},
+    {q:"codem 生成的设计文档不支持 Mermaid 序列图吗？", ans:"不是 CodeM 不支持，是飞书文档默认不渲染 Mermaid 代码块。飞书文档有「文本绘图」小组件，支持 Mermaid 语法（含时序图）自动渲染。", src:"高远 · 字节（2）"},
+    {q:"飞书 Bot 生成的增删改查页面样式太老了，像多年前的架构", ans:"与模型强度及用户描述详尽程度（只有简单一句话）有关。近期针对模型做了迭代优化，预期效果更好。", src:"上汽集团（1）", img:"assets/v2_consult_05.png"}
+  ],
+  bug: [
+    {q:"飞书 Bot 思考太慢，改个小 bug 停在一步酝酿中 10min 没有下一步动静", ans:"已解决。", src:"上海汉得 · 宁德新能源 · 正泰安能（3）"},
+    {q:"历史会话没了", ans:"1.0.5 版本已修复。", src:"逸仙电商 · 字节（2）", img:"assets/v2_bug_02.png"},
+    {q:"检查更新失败", ans:"1.0.4 版本已修复。", src:"上海汉得 · 字节（2）", img:"assets/v2_bug_03.png"},
+    {q:"客户端会话执行报错", ans:"1.0.5 版本已修复。", src:"睿晟传媒 · 字节（2）", img:"assets/v2_bug_04.png"},
+  {q:"执行安装命令后，缺少一部分文件", ans:"近期针对系统提供独立完整安装包，可大幅提升安装体验。", src:"劲方医药 · 社区（2）", img:"assets/v2_bug_05.png"},
+  {q:"客户端执行停不下来了", ans:"1.0.6 版本已修复。", src:"宏发芯创 · 星河智联（2）", img:"assets/v2_bug_06.png"},
+    {q:"Codem Bot 上传附件提示成功，但实际没成功", ans:"已修复。", src:"轮动（2）", img:"assets/v2_bug_07a.jpg", img2:"assets/v2_bug_07b.jpg"}
+    ],
+    req: [
+    {q:"设备重复且名称一样，无法分清使用的是哪个", ans:"已有需求在跟进。", src:"社区 · 字节", img:"assets/v2_req_01.png", doc:{title:"[需求]【品质优化】私聊/群聊操作——排序、设备解绑逻辑、目录添加和选择操作合并等", url:"https://meego.larkoffice.com/codem/story/detail/7358113520?tabKey=detail"}},
+    {q:"飞书 Bot 内产物支持共享，不止任务执行人可以看", ans:"已有需求在优化，近期上线。", src:"宁德新能源 · 字节", doc:{title:"[需求]bot 产物预览规范", url:"https://meego.larkoffice.com/codem/story/detail/7358459556"}},
+    {q:"Codem 卡片数量太多容易刷屏，希望针对无效信息降噪", ans:"有需求优化，预期九月底上线。", src:"字节", img:"assets/v2_req_03.png", doc:{title:"[需求]codem 过程卡片展示优化——支持配置简洁/完整展示", url:"https://meego.larkoffice.com/codem/story/detail/7359871789"}},
+    {q:"任务标题默认显示前几个字不直观，希望 AI 自动总结标题方便查找", ans:"", src:"儒意电影"},
+  {q:"希望思考实时可见，便于判断方向是否正确、及时调整提示词，避免浪费 token", ans:"", src:"宁德新能源"},
+  {q:"CLI 命令菜单希望支持鼠标点击", ans:"", src:"影石创新"}
+    ],
+  pos: [],
+  neg: [],
+img: {}
+  },
+  "8.17-8.23": {
+    cats: [["常见咨询",24],["Bug 统计",8],["需求建议",9],["正向反馈",1],["负向反馈",0]],
+    total: 42,
+    tconsult: 24, tbug: 8, treq: 9,
+    consult: [
+      {q:"CodeM 使用什么模型？", ans:"使用国内顶尖模型，包括 glm5.2、deepseekv4pro、豆包 seed 2.0 Pro，具体根据任务情况自动匹配最优模型。", src:"钧山医芯 · Lark Base · 中企数科 · 智书企飞"},
+      {q:"CodeM 可以替换自己的模型吗？", ans:"暂不支持替换模型。", src:"钧山医芯 · 洋葱学园 · 大洋电机 · 社区"},
+      {q:"沙箱必须依赖飞书项目才可以使用吗？", ans:"是的。", src:"社区 · 字节用户"},
+      {q:"提示没有飞书 CodeM 的使用无权限", ans:"企业管理员在后台针对 CodeM 没有配置额度。", src:"WebEye网眼 · 社区"},
+      {q:"CodeM 可以个人续费使用吗？", ans:"目前官方 CodeM 不支持个人续费使用，需通过企业购买 AI 版本或 AI 用量套餐来获得额度，由企业管理员统一采购、成员共享。", src:"无问芯穹"},
+      {q:"怎么开启 yolo 模式？", ans:"CodeM --yolo", src:"皓天策略投资顾问 · 未认证用户 · 内部反馈"},
+      {q:"如何查询历史对话记录？", ans:"CodeM sessions list 会出现当前目录下历史对话列表。", src:"深圳市凯迪仕智能 · 社区用户"},
+      {q:"桌面版的下载不好", ans:"官网 https://CodeM.feishu.cn/home 滑到最下面，切换桌面版点击下载。", src:"来酷科技 · 内部反馈"},
+      {q:"怎么查看使用的额度？", ans:"企业管理员打开飞书管理后台，进入「AI 使用管理」→「用量概览」。", src:"宁德新能源 · 易买工品 · 悠跑科技 · 社区反馈"}
+    ],
+    bug: [
+      {q:"后台终端进程被安全软件杀掉了", ans:"（多次反馈）被安全软件误杀导致后台进程中断。", src:"北京高远华信 · 君实生物 · 社区（3）"},
+      {q:"额度不足", ans:"因账号不统一出现额度不足提示。", src:"宁德新能源 · 内部反馈（2）"},
+      {q:"在云端配置的技能 skill 不能同步到电脑上", ans:"导致 cli 和飞书 bot 里一直用不了这个技能。", src:"武汉市多比特 · 博泰（2）"},
+      {q:"沙箱任务以卡片形式记录，但完成 / 开始时群消息没有同步", ans:"沙箱开始执行或执行任务完成之后，群消息未同步。", src:"内部反馈（1）"}
+    ],
+    req: [
+      {q:"选择推理强度很别扭，还要点击上述的编辑很误导", ans:"希望优化推理强度的选择交互。", src:"深圳市凯迪仕智能 · 内部反馈"},
+      {q:"Bot 管理界面需拖拽到一定宽度才确认，希望给一定的提示/按钮展开", ans:"希望有明确的提示或展开按钮。", src:"深圳市凯迪仕智能"},
+      {q:"CodeM 使用建议与体验问题", ans:"", src:"武汉当看", doc:{title:"企业 Agent 的组织和管理的思考和实践", url:"https://bytedance.larkoffice.com/docx/TPuRdrA92oMCnnxIaA6cKBI4neb"}},
+      {q:"支持图片交互", ans:"希望支持图片类输入 / 交互。", src:"上海禾赛"},
+      {q:"右边文件夹显示了文件目录和代码内容，但指定代码行需手动 @ 文件并告诉行数，希望像 Trae IDE / Cursor 支持编辑", ans:"", src:"宏恒"},
+      {q:"CodeM 可以配置定时发送消息的任务么", ans:"", src:"字节"},
+      {q:"产物预览问题，转技术需求（bot 产物预览规范）", ans:"", src:"转转 · 易买工品"}
+    ],
+    pos: [
+      {q:"目前飞书生态唯一官方能把飞书上下文在本地电脑继续的方案", ans:"", src:"华图"}
+    ],
+    neg: [],
+    img: {
+      consult:{3:"assets/consult_04.png",8:"assets/consult_09.png"},
+      bug:{0:"assets/bug_01.png",1:"assets/bug_02.png",3:"assets/bug_04.png"},
+      req:{0:"assets/req_01.jpg",1:"assets/req_02.jpg",2:"assets/req_03.jpg",3:"assets/req_04.png",6:"assets/req_07.png"},
+      pos:{0:"assets/pos_01.png"}
+    }
+  }
+};
+var PERIOD_ORDER = ["8.17-8.23", "8.24-9.6", "9.7-9.20", "9.21-10.11", "10.12-10.23"];
+var curPeriod = "10.12-10.23";
+function P(){ return PERIODS[curPeriod]; }
+
+/* ------- helpers ------- */
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function imres(p){ if(!p)return null; var k=p.replace(/^assets\//,"").replace(/\.(png|jpe?g)$/i,""); return IMG[k]||p; }
+
+/* ------- 页1：总览（全部根据文档真实统计） ------- */
+function renderOverview(){
+  var d=P();
+  var CATS=d.cats.map(function(x){return {k:x[0],n:x[1]};});
+  var TOTAL=d.total,POS=d.pos.length,NEG=d.neg.length;
+  $("#kpis").innerHTML=
+    `<div class="kpi b"><div class="nv" data-v="${TOTAL}">0</div><div class="lb">用户声音累计（条）</div></div>
+     <div class="kpi g"><div class="nv" data-v="${POS}">0</div><div class="lb">正向反馈（条）</div></div>
+     <div class="kpi r"><div class="nv" data-v="${NEG}">0</div><div class="lb">负向反馈（条）</div></div>`;
+  countUp();
+  var SLIDE_OF={"常见咨询":1,"Bug 统计":2,"需求建议":3,"正向反馈":4,"负向反馈":4};
+  var max=Math.max.apply(null,CATS.map(x=>x.n))||1;
+  $("#catBars").innerHTML=CATS.map((c,i)=>{
+    var pct=Math.round(c.n/max*100);
+    var gcol=["","linear-gradient(90deg,var(--cy),var(--bl))","linear-gradient(90deg,var(--rd),var(--am))","linear-gradient(90deg,var(--am),var(--cy))","linear-gradient(90deg,var(--gr),var(--cy))","rgba(255,255,255,.22)"][i+1];
+    return `<div class="bar" style="cursor:pointer" onclick="goTo(${SLIDE_OF[c.k]})" title="点击查看「${c.k}」细目"><span class="nm">${c.k}</span>
+      <div class="tr"><div class="fl" data-w="${pct}" style="background:${gcol}"></div></div>
+      <span class="vl">${c.n}</span></div>`;
+  }).join("");
+  setTimeout(function(){$$("#catBars .fl").forEach(function(f){f.style.width=f.getAttribute("data-w")+"%";});},80);
+  /* 来源高频 */
+  var freq={};
+  [].concat(d.consult,d.bug,d.req,d.pos).forEach(function(it){
+    (it.src||"").split(/[·、(]\s*/).forEach(function(s){
+      s=s.replace(/[）\)]$/,"").replace(/\s*（?\d+）?$/,"").trim();
+      if(!s)return; s=s.replace(/（.*$/,"").trim(); if(!s)return;
+      freq[s]=(freq[s]||0)+1;
+    });
+  });
+  var chips=Object.keys(freq).map(function(k){return {k:k,n:freq[k]};})
+    .sort(function(a,b){return b.n-a.n;}).slice(0,12);
+  $("#srcChips").innerHTML=chips.map(function(c){return `<span class="chip">${esc(c.k)}<b>×${c.n}</b></span>`;}).join("");
+}
+function countUp(){
+  $$(".kpi .nv").forEach(function(el){
+    var target=+el.getAttribute("data-v"),t0=null,dur=900;
+    function step(ts){if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1);
+      el.textContent=Math.round(target*(1-Math.cos(p*Math.PI))/2);
+      if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  });
+}
+
+/* ------- 板块列表：常见咨询 / bug / 需求 / 正向 ------- */
+  function renderList(sel,arr,imgKey,emptyTxt){
+  var items=arr||[];
+  if(!items.length){
+  $(sel).innerHTML=`<div class="empty"><div class="ic">📭</div><div>${emptyTxt||"本周期文档未收录该板块，暂无数据。"}</div></div>`;
+return;
+}
+$(sel).innerHTML=items.map(function(it,i){
+var rkNum=(i+1).toString().padStart(2,"0");
+  var rk=i===0?"rk":"rk alt";
+  var ans=it.ans?`<div class="ans">${esc(it.ans)}</div>`:"";
+    var segs=(it.src||"").split("·").map(function(x){return x.trim().replace(/（\d+）?$/,"");}).filter(Boolean);
+    var pills=segs.length
+    ?`<span class="pills">${segs.map(function(x){return `<b class="p">📍 ${esc(x)}</b>`;}).join("")}</span>`
+    :"";
+    var doc=it.doc
+      ?`<a class="doc-link" href="${it.doc.url}" target="_blank" rel="noopener">📄 ${esc(it.doc.title)}</a>`
+      :"";
+    var pimg=(P().img&&P().img[imgKey])?P().img[imgKey][i]:null;
+      var im1=imres(it.img||pimg);
+      var img=im1
+    ?`<div class="img-toggle" onclick="this.classList.toggle('on');var w=this.closest('.bk-m').querySelector('.shot-wrap');if(w)w.classList.toggle('open');" title="点击展开/收起截图">📷 查看截图</div>
+      <div class="shot-wrap"><img class="shot" src="${im1}" alt="${esc(it.q)}" loading="lazy">${it.img2?`<img class="shot" src="${imres(it.img2)}" alt="${esc(it.q)}" loading="lazy">`:""}</div>`
+        :"";
+      return `<div class="bp">
+    <div class="${rk}">${rkNum}</div>
+      <div class="bk-m">
+        <div class="bk-top"><span class="q">${esc(it.q)}</span>${pills}</div>
+        ${ans}${doc}${img}
+      </div></div>`;
+  }).join("");
+  }
+
+function renderBoards(){
+var d=P();
+renderList("#consultList",d.consult,"consult");
+renderList("#bugList",d.bug,"bug");
+  renderList("#reqList",d.req,"req");
+  renderList("#posList",d.pos,"pos","本周期文档未收录「正向反馈」板块，暂无数据。");
+  $("#consultTag").textContent="文档共 "+d.tconsult+" 条 · 明细 "+d.consult.length+" 条";
+  $("#bugTag").textContent="文档共 "+d.tbug+" 条 · 明细 "+d.bug.length+" 条";
+  $("#reqTag").textContent="文档共 "+d.treq+" 条 · 明细 "+d.req.length+" 条";
+  $("#negEmptyTxt").innerHTML="文档《飞书CodeM VOC 反馈汇总》本周期（"+curPeriod+"）<br>未收录「负向反馈」板块，暂无数据。";
+}
+
+/* ------- 周期筛选 ------- */
+function buildSwitcher(){
+  $$(".pfixed").forEach(function(h){
+  PERIOD_ORDER.forEach(function(pk){
+    var b=document.createElement("button");
+    b.setAttribute("data-p",pk);
+    b.innerHTML=esc(pk)+(PERIODS[pk].isLatest?'<span class="pnew">最新</span>':"");
+    b.onclick=function(){setPeriod(pk);};
+    h.appendChild(b);
+  });
+});
+}
+  function setPeriod(pk){
+  if(pk===curPeriod)return;
+  curPeriod=pk;
+  $$(".pfixed button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-p")===pk);});
+renderAll();
+}
+function renderAll(){renderOverview();renderBoards();}
+
+/* ------- 翻页 ------- */
+var slides=$$(".slide"),cur=0,TOTALP=slides.length;
+var stage=$("#stage"),dotsH=$("#dots");
+dotsH.innerHTML=slides.map(function(_,i){return `<i data-i="${i}"></i>`;}).join("");
+$$("#dots i").forEach(function(d){d.onclick=function(){goTo(+d.getAttribute("data-i"));};});
+$("#prev").onclick=function(){goTo(cur-1);};
+$("#next").onclick=function(){goTo(cur+1);};
+document.addEventListener("keydown",function(e){
+  if(e.key==="ArrowRight"||e.key==="ArrowDown"||e.key===" "){e.preventDefault();goTo(cur+1);}
+  if(e.key==="ArrowLeft"||e.key==="ArrowUp"){e.preventDefault();goTo(cur-1);}
+});
+var wheelLock=false;
+window.addEventListener("wheel",function(e){
+  if(wheelLock)return;wheelLock=true;setTimeout(function(){wheelLock=false;},650);
+  if(Math.abs(e.deltaY)>32)goTo(cur + (e.deltaY>0?1:-1));
+},{passive:true});
+/* 触摸滑动翻页：左滑下一页 / 右滑上一页 */
+var tx=0,ty=0,tT=0,touchLock=false,lastTouch=0;
+document.addEventListener("touchstart",function(e){
+  lastTouch=Date.now();
+  if(e.touches.length!==1)return;
+tx=e.touches[0].clientX;ty=e.touches[0].clientY;tT=Date.now();
+},{passive:true});
+document.addEventListener("touchend",function(e){
+  if(touchLock||!tT)return;
+  var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty,dt=Date.now()-tT;
+  tT=0;
+  if(dt>800)return;
+  if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.5){
+    touchLock=true;setTimeout(function(){touchLock=false;},650);
+    goTo(cur+(dx<0?1:-1));
+  }
+},{passive:true});
+/* 鼠标拖拽翻页（PC 端）：按住左滑下一页 / 右滑上一页 */
+var mDown=false,mx=0,my=0,mMoved=0;
+document.addEventListener("mousedown",function(e){
+  if(e.button!==0)return;
+  if(Date.now()-lastTouch<800)return; /* 忽略移动端 tap 合成的鼠标事件 */
+mDown=true;mx=e.clientX;my=e.clientY;mMoved=0;
+});
+document.addEventListener("mousemove",function(e){
+  if(!mDown)return;
+  mMoved=Math.max(mMoved,Math.abs(e.clientX-mx));
+  if(mMoved>10)document.body.style.userSelect="none";
+});
+document.addEventListener("mouseup",function(e){
+  if(!mDown)return;mDown=false;
+  document.body.style.userSelect="";
+  var dx=e.clientX-mx,dy=e.clientY-my;
+  if(mMoved>10){/* 拖拽后抑制紧随的 click，避免误触展开/跳转 */
+    var sup=function(ev){ev.stopPropagation();ev.preventDefault();};
+    document.addEventListener("click",sup,true);
+    setTimeout(function(){document.removeEventListener("click",sup,true);},50);
+  }
+  if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.5){
+    goTo(cur+(dx<0?1:-1));
+  }
+});
+
+function goTo(i){
+  if(i<0||i>=TOTALP||i===cur)return;
+  var dir=i>cur?1:-1;
+  stage.classList.remove("sl","sr");
+  void stage.offsetWidth;
+  stage.classList.add(dir>0?"sr":"sl");
+  slides[cur].classList.remove("active");
+  cur=i;
+  slides[cur].classList.add("active");
+  $("#curP").textContent=cur+1;
+  $("#progress").style.width=((cur+1)/TOTALP*100)+"%";
+  $$("#dots i").forEach(function(d,k){d.classList.toggle("on",k===cur);});
+}
+
+buildSwitcher();
+$$(".pfixed button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-p")===curPeriod);});
+renderAll();
+goTo(0);
+</script>
+</body>
+</html>
